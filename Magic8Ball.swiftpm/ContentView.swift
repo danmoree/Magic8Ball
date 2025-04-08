@@ -26,6 +26,18 @@ struct ContentView: View {
                         .fontWidth(.expanded)
                         .font(.title)
                         .fontWeight(.heavy)
+                    
+                    
+                    Spacer()
+                }
+                HStack {
+                    Text("The future is wobbly and white.")
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
+                        .padding(.top, -20)
+                        .fontWidth(.expanded)
+                        .fontWeight(.light)
+                    
                     Spacer()
                 }
 
@@ -73,15 +85,28 @@ struct ContentView: View {
 
                 Spacer()
 
-                TextField("Ask a question", text: $viewModel.question)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal, 40)
+                HStack {
+                    TextField("Question...", text: $viewModel.question)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .padding(.leading, 16)
+
+                    Image(systemName: "mic.fill")
+                        .foregroundColor(.white)
+                        .padding(.trailing, 16)
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color(white: 0.15))
+                )
+        
+                
             }
             .padding()
         }
     }
 
-    // MARK: - Wobble Generator
+    
 
     func generateRandomWobbleScale() -> CGSize {
         let x = Double.random(in: 0.95...1.08)
