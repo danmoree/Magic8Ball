@@ -8,7 +8,7 @@ import SwiftUI
 
 @MainActor
 class Magic8BallViewModel: ObservableObject {
-    @Published var response: String = "Ask me anything..."
+    @Published var response: String = ""
     @Published var question: String = ""
     @Published var isAnimating: Bool = false
     
