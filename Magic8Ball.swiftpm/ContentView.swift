@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var randomScale: CGSize = CGSize(width: 1.0, height: 1.0)
     @State private var blobIntensity: CGFloat = 1.4
     @State private var showBlob: Bool = true
+    @State private var isThinking = false
 
     var body: some View {
         ZStack {
@@ -30,7 +31,7 @@ struct ContentView: View {
                     Spacer()
                 }
                 HStack {
-                    Text("The future is wobbly and white.")
+                    Text("The future is wobbly.")
                         .foregroundColor(.gray)
                         .font(.subheadline)
                         .padding(.top, -20)
@@ -42,16 +43,18 @@ struct ContentView: View {
 
                 Spacer()
 
-                if showBlob {
-                    ZStack {
+                ZStack {
+                    if showBlob {
                         TimelineView(.animation) { timeline in
                             let time = timeline.date.timeIntervalSinceReferenceDate
                             let phase = CGFloat(time).truncatingRemainder(dividingBy: .pi * 2)
 
                             BlobShape(phase: phase, intensity: blobIntensity)
-                               // .fill(Color.white)
                                 .frame(width: 200, height: 200)
                                 .shadow(radius: 10)
+                                .scaleEffect(isThinking ? 1.35 : 1.0)
+                                .blur(radius: isThinking ? 20 : 0)
+                                .animation(isThinking ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : .default, value: isThinking)
                                 .overlay(
                                     Text(viewModel.response)
                                         .foregroundColor(.black)
@@ -59,29 +62,32 @@ struct ContentView: View {
                                         .font(.headline)
                                         .padding()
                                         .frame(width: 180)
+                                        .blur(radius: isThinking ? 20 : 0)
+                                        .scaleEffect(isThinking ? 0.4 : 1.0)
+                                        .animation(.easeInOut(duration: 1.5), value: isThinking)
+                                        .opacity(isThinking ? 0 : 1)
                                 )
                                 .onTapGesture {
                                     viewModel.shakeBall()
-                                    
                                     withAnimation(.easeOut(duration: 0.15)) {
                                         blobIntensity = 3.0
                                     }
-
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                                         withAnimation(.easeInOut(duration: 0.4)) {
-                                            blobIntensity = 1.4 // return to normal
+                                            blobIntensity = 1.4
                                         }
                                     }
                                 }
+                                .transition(.opacity.combined(with: .scale))
                         }
+                    } else {
+                        Text(viewModel.response)
+                            .font(.headline)
+                            .padding()
+                            .transition(.opacity)
                     }
-                } else {
-                    Text(viewModel.response)
-                        //.multilineTextAlignment(.center)
-                        .font(.headline)
-                        .padding()
-                        .frame(width: 180)
                 }
+                .animation(.easeInOut(duration: 0.8), value: showBlob)
 
                 Spacer()
 
@@ -96,27 +102,30 @@ struct ContentView: View {
                         }
 
                     if viewModel.question.isEmpty {
-                        Image(systemName: "mic")
-                            .padding(.trailing, 16)
+                     //   Image(systemName: "mic")
+                       //     .padding(.trailing, 16)
                     } else {
                         Button(action: {
-                            viewModel.shakeBall()
-                            showBlob = false
-                            withAnimation(.easeOut(duration: 0.15)) {
-                                blobIntensity = 3.0
-                            }
+                            isThinking = true
+                            showBlob = true
+                            blobIntensity = 2.5 // make the blob animate strongly
 
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                viewModel.shakeBall()
+                                viewModel.question = ""
+
                                 withAnimation(.easeInOut(duration: 0.4)) {
                                     blobIntensity = 1.4
+                                    isThinking = false
+                                    showBlob = false
                                 }
                             }
                         }) {
-                                Image(systemName: "arrow.up.circle.fill")
-                                    .foregroundColor(.black)
-                                    .font(.system(size: 28))
-                                    .padding(.trailing, 10)
-                                    
+                            Image(systemName: "arrow.up.circle.fill")
+                                .foregroundColor(.black)
+                                .font(.system(size: 28))
+                                .padding(.trailing, 10)
+                                
                         }
                     }
                 }
