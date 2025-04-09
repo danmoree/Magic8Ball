@@ -1,11 +1,11 @@
-import SwiftUI
-//
+//  CS 471 Group Project
 //  8BallViewModel.swift
 //  Magic8Ball
 //
-//  Created by Daniel Moreno on 4/7/25.
+//  Created by Daniel Moreno, Matthew Quinones, and Brady Scaggari
+//  on 4/7/25.
 //
-
+import SwiftUI
 @MainActor
 class Magic8BallViewModel: ObservableObject {
     @Published var response: String = ""

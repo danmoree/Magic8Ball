@@ -1,8 +1,8 @@
-//
+//  CS 471 Group Project
 //  ContentView.swift
 //  Magic8Ball
 //
-//  Created by Daniel Moreno on 4/7/25.
+//  Created by Daniel Moreno, Matthew Quinones, and Brady Scaggari on 4/7/25.
 //
 
 import SwiftUI
@@ -144,7 +144,7 @@ struct ContentView: View {
 
     func generateRandomWobbleScale() -> CGSize {
         let x = Double.random(in: 0.95...1.08)
-        let y = 2.05 - x // Keeps the "liquid" balance between stretch and squish
+        let y = 2.05 - x // Keeps the liquid balance between stretch and squish
         return CGSize(width: x, height: y)
     }
 
