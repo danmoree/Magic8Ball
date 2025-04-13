@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var viewModel = Magic8BallViewModel()
+    @StateObject var Magic8Ball = Magic8BallViewModel()
     @State private var wobbleTimer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     @State private var randomScale: CGSize = CGSize(width: 1.0, height: 1.0)
     @State private var blobIntensity: CGFloat = 1.4
@@ -48,7 +48,9 @@ struct ContentView: View {
                         TimelineView(.animation) { timeline in
                             let time = timeline.date.timeIntervalSinceReferenceDate
                             let phase = CGFloat(time).truncatingRemainder(dividingBy: .pi * 2)
-
+                            
+                            // Make the blobshape BlobEffect.swift
+                            // var isThinking controls if the ball animates
                             BlobShape(phase: phase, intensity: blobIntensity)
                                 .frame(width: 200, height: 200)
                                 .shadow(radius: 10)
@@ -56,7 +58,7 @@ struct ContentView: View {
                                 .blur(radius: isThinking ? 20 : 0)
                                 .animation(isThinking ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true) : .default, value: isThinking)
                                 .overlay(
-                                    Text(viewModel.response)
+                                    Text(Magic8Ball.response) // Also animates
                                         .foregroundColor(.black)
                                         .multilineTextAlignment(.center)
                                         .font(.headline)
@@ -67,21 +69,10 @@ struct ContentView: View {
                                         .animation(.easeInOut(duration: 1.5), value: isThinking)
                                         .opacity(isThinking ? 0 : 1)
                                 )
-                                .onTapGesture {
-                                    viewModel.shakeBall()
-                                    withAnimation(.easeOut(duration: 0.15)) {
-                                        blobIntensity = 3.0
-                                    }
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                        withAnimation(.easeInOut(duration: 0.4)) {
-                                            blobIntensity = 1.4
-                                        }
-                                    }
-                                }
-                                .transition(.opacity.combined(with: .scale))
+                             
                         }
                     } else {
-                        Text(viewModel.response)
+                        Text(Magic8Ball.response)
                             .font(.headline)
                             .padding()
                             .transition(.opacity)
@@ -92,42 +83,39 @@ struct ContentView: View {
                 Spacer()
 
                 HStack {
-                    TextField("Question...", text: $viewModel.question)
+                    TextField("Question...", text: $Magic8Ball.question)
                         .padding(.vertical, 12)
                         .padding(.leading, 16)
-                        .onChange(of: viewModel.question) { newValue in
+                        .onChange(of: Magic8Ball.question) { newValue in
                             if newValue.isEmpty == false {
                                 showBlob = true
                             }
                         }
 
-                    if viewModel.question.isEmpty {
-                     //   Image(systemName: "mic")
-                       //     .padding(.trailing, 16)
-                    } else {
-                        Button(action: {
-                            isThinking = true
-                            showBlob = true
-                            blobIntensity = 2.5 // make the blob animate strongly
+                    Button(action: {
+                        isThinking = true
+                        showBlob = true
+                        blobIntensity = 2.5
 
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                                viewModel.shakeBall()
-                                viewModel.question = ""
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                            Magic8Ball.shakeBall()
+                            Magic8Ball.question = ""
 
-                                withAnimation(.easeInOut(duration: 0.4)) {
-                                    blobIntensity = 1.4
-                                    isThinking = false
-                                    showBlob = false
-                                }
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                blobIntensity = 1.4
+                                isThinking = false
+                                showBlob = false
                             }
-                        }) {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .foregroundColor(.black)
-                                .font(.system(size: 28))
-                                .padding(.trailing, 10)
-                                
                         }
+                    }) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .foregroundColor(.black)
+                            .font(.system(size: 28))
+                            .padding(.trailing, 10)
                     }
+                    .opacity(Magic8Ball.question.isEmpty ? 0 : 1)
+                    .scaleEffect(Magic8Ball.question.isEmpty ? 0.8 : 1.0)
+                    .animation(.easeInOut(duration: 0.3), value: Magic8Ball.question)
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -142,10 +130,5 @@ struct ContentView: View {
 
     
 
-    func generateRandomWobbleScale() -> CGSize {
-        let x = Double.random(in: 0.95...1.08)
-        let y = 2.05 - x // Keeps the liquid balance between stretch and squish
-        return CGSize(width: x, height: y)
-    }
 
 }

@@ -6,11 +6,10 @@
 //  on 4/7/25.
 //
 import SwiftUI
-@MainActor
+@MainActor // Run on the main thread, Concurrency things
 class Magic8BallViewModel: ObservableObject {
     @Published var response: String = ""
     @Published var question: String = ""
-    @Published var isAnimating: Bool = false
     
     private let responses = [
         "Yes, definitely.",
@@ -27,16 +26,9 @@ class Magic8BallViewModel: ObservableObject {
         // Pick a random response
         response = responses.randomElement() ?? "Hmm..."
         
-        // Haptic feedback on main thread.
-        DispatchQueue.main.async {
-            let haptic = UIImpactFeedbackGenerator(style: .medium)
-            haptic.impactOccurred()
-        }
+        // Haptic feedback
+        let haptic = UIImpactFeedbackGenerator(style: .medium)
+        haptic.impactOccurred()
         
-        isAnimating = true
-        // Using [weak self] to avoid a strong reference cycle.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.isAnimating = false
-        }
     }
 }
